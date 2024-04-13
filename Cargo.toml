@@ -6,6 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anstyle = "1.0.6"
 async-std = { version = "1.12.0", features = ["attributes"]}
+clap = { version = "4.5.4", features = ["derive"] }
+color-print = "0.3.5"
 colored = "2.1.0"
 zbus = "4.1.2"

@@ -352,7 +352,7 @@ last-folder-path='/home/eddiesneed/Pictures'
 last-folder-path='/home/eddiesneed/MEGAsync/Writing'
 
 [org/gnome/portal/filechooser/vivaldi-stable]
-last-folder-path='/home/eddiesneed/Documents'
+last-folder-path='/home/eddiesneed/Pictures'
 
 [org/gnome/settings-daemon/plugins/color]
 night-light-enabled=true
@@ -424,9 +424,9 @@ update-time=15
 locations=@av []
 
 [org/gnome/software]
-check-timestamp=int64 1712829626
+check-timestamp=int64 1712937382
 first-run=false
-flatpak-purge-timestamp=int64 1712809920
+flatpak-purge-timestamp=int64 1712937781
 
 [org/gnome/tweaks]
 show-extensions-notice=false
@@ -438,7 +438,7 @@ selected-color=(true, 0.099857769906520844, 0.090655557811260223, 0.136666670441
 [org/gtk/gtk4/settings/file-chooser]
 date-format='regular'
 location-mode='path-bar'
-show-hidden=true
+show-hidden=false
 show-size-column=true
 show-type-column=true
 sidebar-width=140
