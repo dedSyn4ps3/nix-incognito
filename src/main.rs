@@ -43,14 +43,66 @@ struct Args {
     silent: bool,
 
     /// Custom wallpaper path
-    #[arg(short, long, default_value_t = String::from("/run/system/backgrounds/incognito/windows.jpg"))]
+    #[arg(
+        short,
+        long,
+        default_value_t = String::from("/run/system/backgrounds/incognito/windows.jpg")
+    )]
     wallpaper: String,
+
+    /// User theme to implement
+    #[arg(short, long, default_value_t = String::from("Orchis-Dark"))]
+    theme: String,
+
+    /// Icon theme to implement
+    #[arg(short, long, default_value_t = String::from("Tela-circle-dark"))]
+    icons: String,
+
+    /// Disable incognito and restore previous system settings
+    #[arg(short, long, default_value_t = false)]
+    restore: bool,
 }
 
 fn main() {
-    let _args = Args::parse();
+    let args = Args::parse();
 
-    //incognito::backup_key_values();
-    //incognito::save_current_system();
-
+    match args.restore {
+        true => {
+            match args.silent {
+                true => {
+                    incognito::load_previous_config(
+                        "$HOME/.config/incognito/current_system_config.txt"
+                    );
+                }
+                false => {
+                    println!();
+                    println!("{}", OVERVIEW);
+                    println!();
+                    println!("🗃️ {}", "Restoring previous system settings...".magenta().bold());
+                    incognito::load_previous_config(
+                        "$HOME/.config/incognito/current_system_config.txt"
+                    );
+                }
+            }
+        }
+        false => {
+            match args.silent {
+                true => {
+                    //println!("Running in silent mode...");
+                    incognito::backup_key_values(true);
+                    incognito::save_current_system(true);
+                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
+                }
+                false => {
+                    println!();
+                    println!("{}", OVERVIEW);
+                    println!();
+                    println!("💬 {}", "Running in verbose mode...".cyan().bold());
+                    incognito::backup_key_values(false);
+                    incognito::save_current_system(false);
+                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
+                }
+            }
+        }
+    }
 }
