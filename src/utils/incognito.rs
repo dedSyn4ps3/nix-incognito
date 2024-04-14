@@ -6,100 +6,186 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-
 #[derive(Debug, PartialEq, Eq, Hash)]
-struct GSetting<'a>{
+struct GSetting<'a> {
     key: &'a str,
     field: &'a str,
 }
 
 type Settings<'a> = HashMap<GSetting<'a>, String>;
 
-pub fn save_current_system() {
-    let output = Command::new("dconf")
-        .arg("dump")
-        .arg("/")
-        .output()
-        .expect("Failed to get data");
+pub fn save_current_system(silent: bool) {
+    let output = Command::new("dconf").arg("dump").arg("/").output().expect("Failed to get data");
 
-    if output.status.success() {
-        println!();
-        print!("{} {} {}\n\n", "========================".yellow(), "Saving Current System Config".magenta().bold(), "=======================".yellow());
-        //println!("{:?}", String::from_utf8_lossy(&output.stdout))
+    if !silent {
+        if output.status.success() {
+            println!();
+            print!(
+                "{}\n{}\n{}\n\n",
+                "==============================".yellow(),
+                " Saving Current System Config ".magenta().bold(),
+                "==============================".yellow()
+            );
+
+            let path = Path::new("current_system_config.txt");
+            let display = path.display();
+
+            // Open file in write-only mode
+            let mut file = match File::create(&path) {
+                Err(why) => panic!("Couldn't create {}: {}", display, why),
+                Ok(file) => file,
+            };
+
+            // Write the `output` string to `file`
+            match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+                Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                Ok(_) =>
+                    println!(
+                        "✅ {} {}",
+                        "Successfully wrote to file:".bold(),
+                        display.to_string().cyan().bold()
+                    ),
+            }
+        } else {
+            println!("Error retrieving configuration dump")
+        }
     } else {
-        println!("Error retrieving configuration dump")
-    }
+        //println!("Running in silent mode...");
+        let path = Path::new("current_system_config.txt");
+        let display = path.display();
 
-    let path = Path::new("current_system_config.txt");
-    let display = path.display();
+        // Open file in write-only mode
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("Couldn't create {}: {}", display, why),
+            Ok(file) => file,
+        };
 
-    // Open file in write-only mode
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("Couldn't create {}: {}", display, why),
-        Ok(file) => file,
-    };
-
-    // Write the `output` string to `file`
-    match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
-        Err(why) => panic!("Couldn't write to {}: {}", display, why),
-        Ok(_) => println!("✅ {} {}", "Successfully wrote to file:".bold(), display.to_string().cyan().bold()),
+        // Write the `output` string to `file`
+        match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+            Err(why) => panic!("Couldn't write to {}: {}", display, why),
+            Ok(_) => (),
+        }
     }
 }
 
-pub fn backup_key_values() {
-
+pub fn backup_key_values(silent: bool) {
     let mut current_value_map: Settings = HashMap::from([
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-uri"}, gsettings::get("org.gnome.desktop.background", "picture-uri")),
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-uri-dark"}, gsettings::get("org.gnome.desktop.background", "picture-uri-dark")),
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-options"}, gsettings::get("org.gnome.desktop.background", "picture-options")),
-        (GSetting{key: "org.gnome.shell.extensions.user-theme", field: "name"}, gsettings::get("org.gnome.shell.extensions.user-theme", "name"))
-        ]);
-    
-    print!("{} {} {}\n\n", "========================".yellow(), "Key Hash Map Config Values".magenta().bold(), "=======================".yellow());
-    for (map, value) in current_value_map.iter_mut() {
-        print!("Current Setting {}: {} \nValue: {}\n\n", map.key, map.field, value); 
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-uri" },
+            gsettings::get("org.gnome.desktop.background", "picture-uri"),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-uri-dark" },
+            gsettings::get("org.gnome.desktop.background", "picture-uri-dark"),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-options" },
+            gsettings::get("org.gnome.desktop.background", "picture-options"),
+        ),
+        (
+            GSetting { key: "org.gnome.shell.extensions.user-theme", field: "name" },
+            gsettings::get("org.gnome.shell.extensions.user-theme", "name"),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.interface", field: "icon-theme" },
+            gsettings::get("org.gnome.desktop.interface", "icon-theme"),
+        ),
+    ]);
+
+    if !silent {
+        print!(
+            "{}\n{}\n{}\n\n",
+            "==========================".yellow(),
+            " Backing Up Config Values ".magenta().bold(),
+            "==========================".yellow()
+        );
     }
-    
-    //println!("{:?}", current_value_map);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO: Write current settings to a file in $HOME called ~/.config/incognito/before_incognito.json //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    for (map, value) in current_value_map.iter_mut() {
+        print!("Current Setting {}: {} \nValue: {}\n\n", map.key, map.field, value);
+    }
 }
 
-#[allow(dead_code)]
-pub fn load_previous_config() {
+pub fn load_previous_config(file: &str) {
     //! Load the previous configuration from the dump file
     //! and updates the system
     let output = Command::new("sh")
         .arg("-c")
-        .arg("dconf load / < current_system_config.txt")
+        .arg(format!("dconf load / < {}", file))
         .output()
         .expect("Failed to execute command");
 
     if output.status.success() {
-        print!("{} {} {}\n\n", "========================".yellow(), "Loading Previous Config".magenta().bold(), "=======================".yellow());
-        //println!("{:?}", String::from_utf8_lossy(&output.stdout))
+        print!(
+            "{}\n{}\n{}\n\n",
+            "========================".yellow(),
+            " Loaded Previous Config ".magenta().bold(),
+            "========================".yellow()
+        );
     } else {
-        println!("Error loading previous configuration dump")
+        println!("Error loading previous configuration file")
     }
 }
 
-#[allow(dead_code)]
-pub fn enable_incognito() {
+pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent: bool) {
     //! Define the keys and fields to be set in incognito mode
     //! and set them to the desired values
     let incognito_value_map: Settings = HashMap::from([
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-uri"}, String::from("file:///usr/share/backgrounds/gnome/adwaita-day.jpg").trim_end_matches('\n').to_string()),
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-uri-dark"}, String::from("file:///usr/share/backgrounds/gnome/adwaita-day.jpg")),
-        (GSetting{key: "org.gnome.desktop.background", field: "picture-options"}, String::from("stretched")),
-        (GSetting{key: "org.gnome.shell.extensions.user-theme", field: "name"}, String::from("Orchis-Dark"))
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-uri" },
+            String::from(format!("file://{}", &wallpaper)),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-uri-dark" },
+            String::from(format!("file://{}", &wallpaper)),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.background", field: "picture-options" },
+            String::from("stretched"),
+        ),
+        (
+            GSetting { key: "org.gnome.shell.extensions.user-theme", field: "name" },
+            String::from(format!("{}", &theme)),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.interface", field: "icon-theme" },
+            String::from(format!("{}", &icons)),
+        ),
     ]);
 
-    print!("{} {} {}\n\n", "========================".yellow(), "Engaging Nix Incognito".green().bold(), "=======================".yellow());
+    if !silent {
+        print!(
+            "{}\n{}\n{}\n\n",
+            "========================".yellow(),
+            " Engaging Nix Incognito ".green().bold(),
+            "========================".yellow()
+        );
 
-    for (map, value) in incognito_value_map.iter() {
-        println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value); 
+        // Set the given key and field to the provided value
+        for (map, value) in incognito_value_map.iter() {
+            // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
+            //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
+            match gsettings::set(map.key, map.field, value) {
+                Ok(s) => println!(
+                    "✅ {}",
+                    s.bold().cyan(),
+                ),
+                Err(e) => println!(
+                    "🚨 {}",
+                    e.bold().red(),
+                ),
+            };
+        }
+    } else {
+        // Run without printing result to stdout
+        for (map, value) in incognito_value_map.iter() {
+            // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
+            //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
+            let _res = gsettings::set(map.key, map.field, value);
+        }
     }
-    
-
-    
-    // Set the keys and fields to the desired values
-    // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///usr/share/backgrounds/gnome/adwaita-day.jpg");
 }
