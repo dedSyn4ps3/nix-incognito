@@ -1,4 +1,4 @@
-/// Provides functions for interacting with the `gsettings` command-line tool.
+/// Provides functions for interacting with the `gsettings` command-line utility.
 ///
 /// This module contains two functions: `get` and `set`, which allow you to retrieve and update
 /// fields in the GSettings configuration database using the `gsettings` command.
@@ -30,7 +30,6 @@ pub fn get(key: &str, field: &str) -> String {
     }
 }
 
-#[allow(dead_code)]
 /// Sets the field of a given key in the GSettings configuration database.
 ///
 /// # Arguments
@@ -53,8 +52,8 @@ pub fn set(key: &str, field: &str, value: &str) -> Result<String, String> {
         .expect("Failed to get data");
 
     if output.status.success() {
-        Ok("Field value updated successfully!".into())
+        Ok("Value updated successfully!".into())
     } else {
-        Err("Error setting new key field".into())
+        Err("Error setting field value".into())
     }
 }
