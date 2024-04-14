@@ -21,10 +21,10 @@ pub fn save_current_system(silent: bool) {
         if output.status.success() {
             println!();
             print!(
-                "{} {} {}\n\n",
-                "========================".yellow(),
-                "Saving Current System Config".magenta().bold(),
-                "=======================".yellow()
+                "{}\n{}\n{}\n\n",
+                "==============================".yellow(),
+                " Saving Current System Config ".magenta().bold(),
+                "==============================".yellow()
             );
 
             let path = Path::new("current_system_config.txt");
@@ -94,22 +94,20 @@ pub fn backup_key_values(silent: bool) {
 
     if !silent {
         print!(
-            "{} {} {}\n\n",
-            "========================".yellow(),
-            "Key Hash Map Config Values".magenta().bold(),
-            "=======================".yellow()
+            "{}\n{}\n{}\n\n",
+            "==========================".yellow(),
+            " Backing Up Config Values ".magenta().bold(),
+            "==========================".yellow()
         );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     // TODO: Write current settings to a file in $HOME called ~/.config/incognito/before_incognito.json //
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     for (map, value) in current_value_map.iter_mut() {
         print!("Current Setting {}: {} \nValue: {}\n\n", map.key, map.field, value);
     }
-
-    //println!("{:?}", current_value_map);
 }
 
 pub fn load_previous_config(file: &str) {
@@ -139,12 +137,10 @@ pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent:
     let incognito_value_map: Settings = HashMap::from([
         (
             GSetting { key: "org.gnome.desktop.background", field: "picture-uri" },
-            //String::from("file:///run/system/backgrounds/incognito/windows.jpg"),
             String::from(format!("file://{}", &wallpaper)),
         ),
         (
             GSetting { key: "org.gnome.desktop.background", field: "picture-uri-dark" },
-            //String::from("file:///run/system/backgrounds/incognito/windows.jpg"),
             String::from(format!("file://{}", &wallpaper)),
         ),
         (
@@ -163,18 +159,33 @@ pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent:
 
     if !silent {
         print!(
-            "{} {} {}\n\n",
+            "{}\n{}\n{}\n\n",
             "========================".yellow(),
-            "Engaging Nix Incognito".green().bold(),
-            "=======================".yellow()
+            " Engaging Nix Incognito ".green().bold(),
+            "========================".yellow()
         );
-    }
 
-    for (map, value) in incognito_value_map.iter() {
-        //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
-        let _res = gsettings::set(map.key, map.field, value);
+        // Set the given key and field to the provided value
+        for (map, value) in incognito_value_map.iter() {
+            // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
+            //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
+            match gsettings::set(map.key, map.field, value) {
+                Ok(s) => println!(
+                    "✅ {}",
+                    s.bold().cyan(),
+                ),
+                Err(e) => println!(
+                    "🚨 {}",
+                    e.bold().red(),
+                ),
+            };
+        }
+    } else {
+        // Run without printing result to stdout
+        for (map, value) in incognito_value_map.iter() {
+            // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
+            //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
+            let _res = gsettings::set(map.key, map.field, value);
+        }
     }
-
-    // Set the keys and fields to the desired values
-    // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
 }
