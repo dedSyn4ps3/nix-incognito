@@ -2,7 +2,9 @@ use crate::utils::gsettings;
 use std::process::Command;
 use std::collections::HashMap;
 use colored::Colorize;
-use std::fs::File;
+use std::fs;
+use std::fs::{ File, OpenOptions };
+use std::io;
 use std::io::prelude::*;
 use std::path::Path;
 
@@ -14,56 +16,75 @@ struct GSetting<'a> {
 
 type Settings<'a> = HashMap<GSetting<'a>, String>;
 
-pub fn save_current_system(silent: bool) {
-    let output = Command::new("dconf").arg("dump").arg("/").output().expect("Failed to get data");
+pub fn save_current_system(silent: bool, config: String) {
+    let output = Command::new("dconf").arg("dump").arg("/").output().expect("Failed to dump data");
 
-    if !silent {
-        if output.status.success() {
-            println!();
-            print!(
-                "{}\n{}\n{}\n\n",
-                "==============================".yellow(),
-                " Saving Current System Config ".magenta().bold(),
-                "==============================".yellow()
-            );
+    match check_file_exists(&config) {
+        true => {
+            if !silent {
+                if output.status.success() {
+                    println!();
+                    print!(
+                        "{}\n{}\n{}\n\n",
+                        "==============================".yellow(),
+                        " Saving Current System Config ".magenta().bold(),
+                        "==============================".yellow()
+                    );
 
-            let path = Path::new("current_system_config.txt");
-            let display = path.display();
+                    let path = Path::new(&config);
+                    let display = path.display();
 
-            // Open file in write-only mode
-            let mut file = match File::create(&path) {
-                Err(why) => panic!("Couldn't create {}: {}", display, why),
-                Ok(file) => file,
-            };
+                    // Open file in write-only mode
+                    let mut file = match File::create(&path) {
+                        Err(why) => panic!("Couldn't create {}: {}", display, why),
+                        Ok(file) => file,
+                    };
 
-            // Write the `output` string to `file`
-            match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
-                Err(why) => panic!("Couldn't write to {}: {}", display, why),
-                Ok(_) =>
-                    println!(
-                        "✅ {} {}",
-                        "Successfully wrote to file:".bold(),
-                        display.to_string().cyan().bold()
-                    ),
+                    // Write the `output` string to `file`
+                    match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+                        Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                        Ok(_) =>
+                            println!(
+                                "✅ {} {}",
+                                "Successfully wrote to file:".bold(),
+                                display.to_string().cyan().bold()
+                            ),
+                    }
+                } else {
+                    println!("❗ {}", "Error dumping system config".red().bold());
+                }
+            } else {
+                //println!("Running in silent mode...");
+                let path = Path::new(&config);
+                let display = path.display();
+
+                // Open file in write-only mode
+                let mut file = match File::create(&path) {
+                    Err(why) => panic!("Couldn't create {}: {}", display, why),
+                    Ok(file) => file,
+                };
+
+                // Write the `output` string to `file`
+                match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+                    Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                    Ok(_) => (),
+                }
             }
-        } else {
-            println!("Error retrieving configuration dump")
         }
-    } else {
-        //println!("Running in silent mode...");
-        let path = Path::new("current_system_config.txt");
-        let display = path.display();
+        false => {
+            println!("`mkdir ~/.config/incognito`");
+            // Create a directory, returns `io::Result<()>`
+            match fs::create_dir("~/.config/incognito") {
+                Err(why) => println!("! {:?}", why.kind()),
+                Ok(_) => {}
+            }
 
-        // Open file in write-only mode
-        let mut file = match File::create(&path) {
-            Err(why) => panic!("Couldn't create {}: {}", display, why),
-            Ok(file) => file,
-        };
-
-        // Write the `output` string to `file`
-        match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
-            Err(why) => panic!("Couldn't write to {}: {}", display, why),
-            Ok(_) => (),
+            println!("`touch ~/.config/incognito/current_system_config.txt`");
+            touch(&Path::new("~/.config/incognito/current_system_config.txt")).unwrap_or_else(
+                |why| {
+                    println!("! {:?}", why.kind());
+                }
+            );
         }
     }
 }
@@ -110,24 +131,33 @@ pub fn backup_key_values(silent: bool) {
     }
 }
 
-pub fn load_previous_config(file: &str) {
-    //! Load the previous configuration from the dump file
-    //! and updates the system
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(format!("dconf load / < {}", file))
-        .output()
-        .expect("Failed to execute command");
+pub fn load_previous_system(file: String) {
+    match check_file_exists(&file) {
+        true => {
+            let output = Command::new("sh")
+                .arg("-c")
+                .arg(format!("dconf load / < {}", &file))
+                .output()
+                .expect("Failed to execute command");
 
-    if output.status.success() {
-        print!(
-            "{}\n{}\n{}\n\n",
-            "========================".yellow(),
-            " Loaded Previous Config ".magenta().bold(),
-            "========================".yellow()
-        );
-    } else {
-        println!("Error loading previous configuration file")
+            if output.status.success() {
+                print!(
+                    "{}\n{}\n{}\n\n",
+                    "========================".yellow(),
+                    " Loaded Previous Config ".magenta().bold(),
+                    "========================".yellow()
+                );
+            } else {
+                println!("Error loading previous configuration file")
+            }
+        }
+        false => {
+            println!(
+                "👀 {}{}",
+                "Config file not found: ".red().bold(),
+                "Enable Incognito to generate it!".bold()
+            );
+        }
     }
 }
 
@@ -170,14 +200,8 @@ pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent:
             // gsettings::set("org.gnome.desktop.background", "picture-uri", "file:///run/system/backgrounds/incognito/windows.jpg");
             //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
             match gsettings::set(map.key, map.field, value) {
-                Ok(s) => println!(
-                    "✅ {}",
-                    s.bold().cyan(),
-                ),
-                Err(e) => println!(
-                    "🚨 {}",
-                    e.bold().red(),
-                ),
+                Ok(s) => println!("✅ {}", s.bold().cyan()),
+                Err(e) => println!("🚨 {}", e.bold().red()),
             };
         }
     } else {
@@ -187,5 +211,18 @@ pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent:
             //println!("Setting {}: {}\nValue: {}\n\n", map.key, map.field, value);
             let _res = gsettings::set(map.key, map.field, value);
         }
+    }
+}
+
+/// Check if the file exists
+fn check_file_exists(file: &str) -> bool {
+    //! Check if the file exists
+    Path::new(file).exists()
+}
+
+fn touch(path: &Path) -> io::Result<()> {
+    match OpenOptions::new().create(true).write(true).open(path) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
     }
 }
