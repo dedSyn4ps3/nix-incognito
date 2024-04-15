@@ -4,6 +4,23 @@ use clap::Parser;
 use colored::Colorize;
 use utils::{ incognito, cli };
 
+const BANNER: &'static str = color_print::cstr!(
+    r#"<bold><red>
+_       _________                    _________ _        _______  _______  _______  _       __________________ _______ 
+( (    /|\__   __/|\     /|           \__   __/( (    /|(  ____ \(  ___  )(  ____ \( (    /|\__   __/\__   __/(  ___  )
+|  \  ( |   ) (   ( \   / )              ) (   |  \  ( || (    \/| (   ) || (    \/|  \  ( |   ) (      ) (   | (   ) |
+|   \ | |   | |    \ (_) /    _____      | |   |   \ | || |      | |   | || |      |   \ | |   | |      | |   | |   | |
+| (\ \) |   | |     ) _ (    (_____)     | |   | (\ \) || |      | |   | || | ____ | (\ \) |   | |      | |   | |   | |
+| | \   |   | |    / ( ) \               | |   | | \   || |      | |   | || | \_  )| | \   |   | |      | |   | |   | |
+| )  \  |___) (___( /   \ )           ___) (___| )  \  || (____/\| (___) || (___) || )  \  |___) (___   | |   | (___) |
+|/    )_)\_______/|/     \|           \_______/|/    )_)(_______/(_______)(_______)|/    )_)\_______/   )_(   (_______)
+</red>   
+                  ============================================================================== 
+                  ||  🪪  Created by: dedsyn4ps3       ✨ Inspiration from: Kali (of course!)  ||
+                  ==============================================================================
+    "#
+);
+
 const OVERVIEW: &'static str = color_print::cstr!(
     r#"<bold><red>
 _       _________                    _________ _        _______  _______  _______  _       __________________ _______ 
@@ -42,6 +59,14 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     silent: bool,
 
+    /// Custom config path
+    #[arg(
+        short,
+        long,
+        default_value_t = String::from("~/.config/incognito/current_system_config.txt")
+    )]
+    config: String,
+
     /// Custom wallpaper path
     #[arg(
         short,
@@ -70,18 +95,14 @@ fn main() {
         true => {
             match args.silent {
                 true => {
-                    incognito::load_previous_config(
-                        "$HOME/.config/incognito/current_system_config.txt"
-                    );
+                    incognito::load_previous_system(args.config);
                 }
                 false => {
                     println!();
-                    println!("{}", OVERVIEW);
+                    println!("{}", BANNER);
                     println!();
                     println!("🗃️ {}", "Restoring previous system settings...".magenta().bold());
-                    incognito::load_previous_config(
-                        "$HOME/.config/incognito/current_system_config.txt"
-                    );
+                    incognito::load_previous_system(args.config);
                 }
             }
         }
@@ -90,17 +111,17 @@ fn main() {
                 true => {
                     //println!("Running in silent mode...");
                     incognito::backup_key_values(true);
-                    incognito::save_current_system(true);
+                    incognito::save_current_system(true, args.config);
                     incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
                 }
                 false => {
                     println!();
-                    println!("{}", OVERVIEW);
+                    println!("{}", BANNER);
                     println!();
                     println!("💬 {}", "Running in verbose mode...".cyan().bold());
                     incognito::backup_key_values(false);
-                    incognito::save_current_system(false);
-                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
+                    incognito::save_current_system(false, args.config);
+                    //incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
                 }
             }
         }
