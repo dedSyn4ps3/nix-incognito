@@ -2,6 +2,7 @@ mod utils;
 
 use clap::Parser;
 use colored::Colorize;
+use dirs::*;
 use utils::{ incognito, cli };
 
 const BANNER: &'static str = color_print::cstr!(
@@ -37,9 +38,9 @@ _       _________                    _________ _        _______  _______  ______
                   ==============================================================================
 
 </bold>
-Ever find yourself on an engagement where you need to blend in with the environment 
-of other workstations around you? Perhaps you're just out to have some fun and don't want 
-to attract attention to yourself by having a flashy desktop for others to see...
+Ever find yourself on an engagement where you need to blend in with the environment of other workstations around you?
+Perhaps you're just out to have some fun and don't want to attract attention to yourself by having a flashy desktop for 
+others to see...
 
 <bold>This tool will help you do just that!</bold>
     "#
@@ -47,10 +48,12 @@ to attract attention to yourself by having a flashy desktop for others to see...
 
 const AFTER_HELP: &'static str = color_print::cstr!(
     r#"<bold><blue>Examples:</blue></bold>
-<dim>$</dim> <bold><green>nix-incognito</green> <yellow>--silent</yellow></bold>                      <dim># Enable with no output</dim>
-<dim>$</dim> <bold><green>nix-incognito</green> <yellow>-s -w</yellow> /path/to/wallpaper.jpg</bold>  <dim># Enable with no output using custom wallpaper</dim>
+<dim>$</dim> <bold><green>nix-incognito</green> <yellow>--silent --config</yellow> "path/to/use"</bold>             <dim># Enable with no output and custom config path</dim>
+<dim>$</dim> <bold><green>nix-incognito</green> <yellow>-s -w</yellow> /path/to/wallpaper.jpg</bold>                <dim># Enable with no output using custom wallpaper</dim>
+<dim>$</dim> <bold><green>nix-incognito</green> <yellow>-i</yellow> "Icon Pack" <yellow>-t</yellow> "Theme"</bold>  <dim># Enable using different theme and icons</dim>
         "#
 );
+
 
 #[derive(Parser, Debug)]
 #[command(version, about = OVERVIEW, after_help = AFTER_HELP, styles = cli::get_styles())]
@@ -59,11 +62,11 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     silent: bool,
 
-    /// Custom config path
+    /// Custom config path [Default: ~/.config/incognito/current_system_config.txt]
     #[arg(
         short,
         long,
-        default_value_t = String::from("~/.config/incognito/current_system_config.txt")
+        default_value_t = String::from(format!("{}/.config/incognito/current_system_config.txt", home_dir().unwrap().to_str().unwrap()))
     )]
     config: String,
 
@@ -112,14 +115,14 @@ fn main() {
                     //println!("Running in silent mode...");
                     incognito::backup_key_values(true);
                     incognito::save_current_system(true, args.config);
-                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
+                    //incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
                 }
                 false => {
                     println!();
                     println!("{}", BANNER);
                     println!();
                     println!("💬 {}", "Running in verbose mode...".cyan().bold());
-                    incognito::backup_key_values(false);
+                    //incognito::backup_key_values(false);
                     incognito::save_current_system(false, args.config);
                     //incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
                 }
