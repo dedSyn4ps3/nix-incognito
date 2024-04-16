@@ -15,6 +15,7 @@ use std::process::Command;
 ///
 /// The output of the `gsettings` command as a `Result` containing a `String` if successful,
 /// or an error message as a `String` if unsuccessful.
+#[allow(dead_code)]
 pub fn get(key: &str, field: &str) -> String {
     let output = Command::new("gsettings")
         .arg("get")

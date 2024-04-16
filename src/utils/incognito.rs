@@ -60,13 +60,13 @@ pub fn save_current_system(silent: bool, config: String) {
 
                 // Open file in write-only mode
                 let mut file = match File::create(&path) {
-                    Err(why) => panic!("Couldn't create {}: {}", display, why),
+                    Err(why) => panic!("{}", format!("🚨 {} {}{} {}", "Couldn't create".bold().red(), display, ":".bold().red(), why)),
                     Ok(file) => file,
                 };
 
                 // Write the `output` string to `file`
                 match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
-                    Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                    Err(why) => panic!("{}", format!("🚨 {} {}{} {}", "Couldn't write to".bold().red(), display, ":".bold().red(), why)),
                     Ok(_) => (),
                 }
             }
@@ -131,13 +131,13 @@ pub fn save_current_system(silent: bool, config: String) {
 
                 // Open file in write-only mode
                 let mut file = match File::create(&path) {
-                    Err(why) => panic!("Couldn't create {}: {}", display, why),
+                    Err(why) => panic!("{}", format!("🚨 {} {}{} {}", "Couldn't create".bold().red(), display, ":".bold().red(), why)),
                     Ok(file) => file,
                 };
 
                 // Write the `output` string to `file`
                 match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
-                    Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                    Err(why) => panic!("{}", format!("🚨 {} {}{} {}", "Couldn't write to".bold().red(), display, ":".bold().red(), why)),
                     Ok(_) => (),
                 }
             }
@@ -145,47 +145,47 @@ pub fn save_current_system(silent: bool, config: String) {
     }
 }
 
-pub fn backup_key_values(silent: bool) {
-    let mut current_value_map: Settings = HashMap::from([
-        (
-            GSetting { key: "org.gnome.desktop.background", field: "picture-uri" },
-            gsettings::get("org.gnome.desktop.background", "picture-uri"),
-        ),
-        (
-            GSetting { key: "org.gnome.desktop.background", field: "picture-uri-dark" },
-            gsettings::get("org.gnome.desktop.background", "picture-uri-dark"),
-        ),
-        (
-            GSetting { key: "org.gnome.desktop.background", field: "picture-options" },
-            gsettings::get("org.gnome.desktop.background", "picture-options"),
-        ),
-        (
-            GSetting { key: "org.gnome.shell.extensions.user-theme", field: "name" },
-            gsettings::get("org.gnome.shell.extensions.user-theme", "name"),
-        ),
-        (
-            GSetting { key: "org.gnome.desktop.interface", field: "icon-theme" },
-            gsettings::get("org.gnome.desktop.interface", "icon-theme"),
-        ),
-    ]);
+// pub fn backup_key_values(silent: bool) {
+//     let mut current_value_map: Settings = HashMap::from([
+//         (
+//             GSetting { key: "org.gnome.desktop.background", field: "picture-uri" },
+//             gsettings::get("org.gnome.desktop.background", "picture-uri"),
+//         ),
+//         (
+//             GSetting { key: "org.gnome.desktop.background", field: "picture-uri-dark" },
+//             gsettings::get("org.gnome.desktop.background", "picture-uri-dark"),
+//         ),
+//         (
+//             GSetting { key: "org.gnome.desktop.background", field: "picture-options" },
+//             gsettings::get("org.gnome.desktop.background", "picture-options"),
+//         ),
+//         (
+//             GSetting { key: "org.gnome.shell.extensions.user-theme", field: "name" },
+//             gsettings::get("org.gnome.shell.extensions.user-theme", "name"),
+//         ),
+//         (
+//             GSetting { key: "org.gnome.desktop.interface", field: "icon-theme" },
+//             gsettings::get("org.gnome.desktop.interface", "icon-theme"),
+//         ),
+//     ]);
 
-    if !silent {
-        print!(
-            "{}\n{}\n{}\n\n",
-            "==========================".yellow(),
-            " Backing Up Config Values ".magenta().bold(),
-            "==========================".yellow()
-        );
-    }
+//     if !silent {
+//         print!(
+//             "{}\n{}\n{}\n\n",
+//             "==========================".yellow(),
+//             " Backing Up Config Values ".magenta().bold(),
+//             "==========================".yellow()
+//         );
+//     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TODO: Write current settings to a file in $HOME called ~/.config/incognito/before_incognito.json //
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
+//     //////////////////////////////////////////////////////////////////////////////////////////////////////
+//     // TODO: Write current settings to a file in $HOME called ~/.config/incognito/before_incognito.json //
+//     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    for (map, value) in current_value_map.iter_mut() {
-        print!("Current Setting {}: {} \nValue: {}\n\n", map.key, map.field, value);
-    }
-}
+//     for (map, value) in current_value_map.iter_mut() {
+//         print!("Current Setting {}: {} \nValue: {}\n\n", map.key, map.field, value);
+//     }
+// }
 
 pub fn load_previous_system(file: String) {
     match check_file_exists(&file) {
@@ -240,6 +240,14 @@ pub fn enable_incognito(wallpaper: String, theme: String, icons: String, silent:
         (
             GSetting { key: "org.gnome.desktop.interface", field: "icon-theme" },
             String::from(format!("{}", &icons)),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.interface", field: "gtk-theme" },
+            String::from(format!("{}", &theme)),
+        ),
+        (
+            GSetting { key: "org.gnome.desktop.wm.preferences", field: "theme" },
+            String::from(format!("{}", &theme)),
         ),
     ]);
 

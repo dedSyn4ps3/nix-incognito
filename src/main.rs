@@ -58,7 +58,7 @@ const AFTER_HELP: &'static str = color_print::cstr!(
 #[derive(Parser, Debug)]
 #[command(version, about = OVERVIEW, after_help = AFTER_HELP, styles = cli::get_styles())]
 struct Args {
-    /// Run without any output
+    /// Run without any output [Default: false]
     #[arg(short, long, default_value_t = false)]
     silent: bool,
 
@@ -74,16 +74,16 @@ struct Args {
     #[arg(
         short,
         long,
-        default_value_t = String::from("/run/system/backgrounds/incognito/windows.jpg")
+        default_value_t = String::from("/run/current-system/sw/share/backgrounds/incognito/win11.jpg")
     )]
     wallpaper: String,
 
     /// User theme to implement
-    #[arg(short, long, default_value_t = String::from("Orchis-Dark"))]
+    #[arg(short, long, default_value_t = String::from("Win11OS-Dark"))]
     theme: String,
 
     /// Icon theme to implement
-    #[arg(short, long, default_value_t = String::from("Tela-circle-dark"))]
+    #[arg(short, long, default_value_t = String::from("Win11-Dark"))]
     icons: String,
 
     /// Disable incognito and restore previous system settings
@@ -112,19 +112,18 @@ fn main() {
         false => {
             match args.silent {
                 true => {
-                    //println!("Running in silent mode...");
-                    incognito::backup_key_values(true);
+                    //incognito::backup_key_values(true);
                     incognito::save_current_system(true, args.config);
-                    //incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
+                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, true);
                 }
                 false => {
                     println!();
                     println!("{}", BANNER);
-                    println!();
-                    println!("💬 {}", "Running in verbose mode...".cyan().bold());
+                    print!("\n\n");
+                    println!("💬 {}", "Running in Verbose Mode".cyan().bold());
                     //incognito::backup_key_values(false);
                     incognito::save_current_system(false, args.config);
-                    //incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
+                    incognito::enable_incognito(args.wallpaper, args.theme, args.icons, false);
                 }
             }
         }
