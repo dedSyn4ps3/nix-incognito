@@ -5,22 +5,30 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "nix-incognito-test";
-  version = "0.1.2";
+  version = "0.1.3";
 
   src = fetchFromGitHub {
     owner = "dedsyn4ps3";
     repo = "nix-incognito-test";
-    rev = "";
-    hash = "sha256-";
+    rev = version;
+    hash = "";
   };
 
+  preInstall = ''
+    mkdir -p $out/share/themes
+    mkdir -p $out/share/icons
+  '';
+
   installPhase = ''
-    mkdir -p $out/share/backgrounds/incognito}
+    runHook preInstall
+    mkdir -p $out/share/backgrounds/incognito
     cp -r backgrounds/* $out/share/backgrounds/incognito/
+    cp -r themes/* $out/share/themes/
+    cp -r icons/* $out/share/icons/
   '';
 
   meta = with lib; {
-    description = "Nix-Incognito utility resources";
+    description = "A NixOS utility that makes your desktop look like Windows";
     homepage = "https://github.com/dedsyn4ps3/nix-incognito-test";
     maintainers = with maintainers; [ dedsyn4ps3 ];
     platforms = platforms.unix;
