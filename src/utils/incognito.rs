@@ -6,7 +6,7 @@ use std::fs;
 use std::fs::{ File, OpenOptions };
 use std::io;
 use std::io::prelude::*;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 struct GSetting<'a> {
@@ -72,19 +72,75 @@ pub fn save_current_system(silent: bool, config: String) {
             }
         }
         false => {
-            println!("`mkdir ~/.config/incognito`");
-            // Create a directory, returns `io::Result<()>`
-            match fs::create_dir("~/.config/incognito") {
-                Err(why) => println!("! {:?}", why.kind()),
-                Ok(_) => {}
-            }
+            let path = PathBuf::from(&config);
+            let dir = path.parent().unwrap();
 
-            println!("`touch ~/.config/incognito/current_system_config.txt`");
-            touch(&Path::new("~/.config/incognito/current_system_config.txt")).unwrap_or_else(
-                |why| {
-                    println!("! {:?}", why.kind());
+            match dir.exists() {
+                true => (),
+                false => {
+                    fs::create_dir_all(&dir)
+                        .unwrap_or_else(|why| println!("Failed to create! -> {:?}", why.kind()));
                 }
-            );
+            };
+
+            match path.exists() {
+                true => (),
+                false => {
+                    touch(&path).unwrap_or_else(|why| {
+                        println!("! {:?}", why.kind());
+                    });
+                }
+            };
+
+            if !silent {
+                if output.status.success() {
+                    println!();
+                    print!(
+                        "{}\n{}\n{}\n\n",
+                        "==============================".yellow(),
+                        " Saving Current System Config ".magenta().bold(),
+                        "==============================".yellow()
+                    );
+
+                    let path = Path::new(&config);
+                    let display = path.display();
+
+                    // Open file in write-only mode
+                    let mut file = match File::create(&path) {
+                        Err(why) => panic!("Couldn't create {}: {}", display, why),
+                        Ok(file) => file,
+                    };
+
+                    // Write the `output` string to `file`
+                    match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+                        Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                        Ok(_) =>
+                            println!(
+                                "✅ {} {}",
+                                "Successfully wrote to file:".bold(),
+                                display.to_string().cyan().bold()
+                            ),
+                    }
+                } else {
+                    println!("❗ {}", "Error dumping system config".red().bold());
+                }
+            } else {
+                //println!("Running in silent mode...");
+                let path = Path::new(&config);
+                let display = path.display();
+
+                // Open file in write-only mode
+                let mut file = match File::create(&path) {
+                    Err(why) => panic!("Couldn't create {}: {}", display, why),
+                    Ok(file) => file,
+                };
+
+                // Write the `output` string to `file`
+                match file.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()) {
+                    Err(why) => panic!("Couldn't write to {}: {}", display, why),
+                    Ok(_) => (),
+                }
+            }
         }
     }
 }
