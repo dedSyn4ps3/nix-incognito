@@ -1,18 +1,20 @@
 { lib
-, stdenvNoCC
+, rustPlatform
 , fetchFromGitHub
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+rustPlatform.buildRustPackage rec {
   pname = "nix-incognito-test";
   version = "0.1.3";
 
   src = fetchFromGitHub {
     owner = "dedsyn4ps3";
-    repo = "nix-incognito-test";
+    repo = pname;
     rev = version;
     hash = "";
   };
+
+  cargoSha256 = "";
 
   preInstall = ''
     mkdir -p $out/share/themes
@@ -34,4 +36,4 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     platforms = platforms.unix;
     license = licenses.gpl3Plus;
   };
-})
+}
