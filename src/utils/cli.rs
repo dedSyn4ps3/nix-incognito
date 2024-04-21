@@ -1,3 +1,4 @@
+/// Helper function for styling CLI terminal output.
 pub fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
         .usage(
