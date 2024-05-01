@@ -131,6 +131,14 @@ By default, the tool will run in a **verbose** mode and display output as it bac
 
 <br>
 
+> **NOTE:** 
+> 
+> The use of any alternate icons or themes will only work if they're already installed on your machine!
+> 
+> **This tool's repo contains the default icon and theme set used by the utility, which get installed along with the tool itself...**
+
+<br>
+
 ```bash
 # Enable Nix-Incognito using different theme and icons
 $ nix-incognito -t "Orchis-Dark" -i "Tela-Circle-Dark"
