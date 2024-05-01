@@ -928,7 +928,7 @@ dependencies = [
 
 [[package]]
 name = "nix-incognito-test"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anstyle",
  "async-std",

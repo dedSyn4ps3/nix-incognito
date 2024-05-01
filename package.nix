@@ -30,7 +30,7 @@ in
 
 rustPlatform.buildRustPackage {
   pname = "nix-incognito-test";
-  version = "v0.1.4";
+  version = "v0.1.5";
 
   src = builtins.fetchGit {
     url = "ssh://git@github.com/dedsyn4ps3/nix-incognito-test.git";
@@ -56,7 +56,7 @@ rustPlatform.buildRustPackage {
   '';
 
   meta = with lib; {
-    description = "A NixOS utility that makes your desktop look like Windows";
+    description = "A nifty utility that makes your desktop look like Windows";
     homepage = "https://github.com/dedsyn4ps3/nix-incognito-test";
     maintainers = with maintainers; [ dedsyn4ps3 ];
     platforms = platforms.unix;

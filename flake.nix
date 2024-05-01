@@ -59,7 +59,7 @@
           # Build the package for each system
           rustPlatform.buildRustPackage {
               name = "nix-incognito-test";
-              version = "v0.1.4";
+              version = "v0.1.5";
 
               src = builtins.fetchGit {
                 url = "ssh://git@github.com/dedsyn4ps3/nix-incognito-test.git";
