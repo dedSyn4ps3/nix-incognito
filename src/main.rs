@@ -1,11 +1,9 @@
 //! # Overview
 //! **A transformative tool designed for Penetration Testers, Red-Teamers, and general Linux enthusiasts who need to mask their tooling environment, or simply crave the familiarity of the Windows interface.**
 //!
-//! This project is your secret agent, seamlessly morphing your Linux desktop to mirror the look and feel of a typical Windows environment. It's perfect for those who want to blend in with the Windows crowd, while still benefitting from the power and flexibility of NixOS!
+//! This project is your secret agent, seamlessly morphing your Linux desktop to mirror the look and feel of a typical Windows environment. It's perfect for those who want to blend in with the Windows crowd, while still benefitting from the power and flexibility of Linux!
 //!
 //! **Experience the best of both worlds with Nix Incognito!**
-//!
-//! ![<https://gatlabs.com/blogpost/10-dangerous-incognito-myths-part-one/>](https://gatlabs.com/wp-content/uploads/2021/12/10-Dangerous-Incognito-Myths_-You-sure-Its-what-you-think-it-is_.jpg)
 //!
 //! The tool is implemented as a command-line application using the `clap` crate for argument parsing and the `colored` crate for colored output.
 //! The main function parses arguments using the `Args` struct, which it then executes the appropriate actions based on the provided arguments, such as enabling incognito mode, restoring previous system settings, or displaying help information.

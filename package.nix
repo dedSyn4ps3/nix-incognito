@@ -29,11 +29,11 @@ let
 in
 
 rustPlatform.buildRustPackage {
-  pname = "nix-incognito-test";
-  version = "v0.1.5";
+  pname = "nix-incognito";
+  version = "v0.2.0";
 
   src = builtins.fetchGit {
-    url = "ssh://git@github.com/dedsyn4ps3/nix-incognito-test.git";
+    url = "https://github.com/dedsyn4ps3/nix-incognito.git";
     ref = "main";
   };
 
@@ -49,7 +49,7 @@ rustPlatform.buildRustPackage {
   installPhase = ''
     runHook preInstall
 
-    cp -r target/x86_64-unknown-linux-gnu/release/nix-incognito-test $out/bin/
+    cp -r target/x86_64-unknown-linux-gnu/release/nix-incognito $out/bin/
     cp -r backgrounds/* $out/share/backgrounds/incognito/
     cp -r themes/* $out/share/themes/
     cp -r icons/* $out/share/icons/
@@ -57,7 +57,7 @@ rustPlatform.buildRustPackage {
 
   meta = with lib; {
     description = "A nifty utility that makes your desktop look like Windows";
-    homepage = "https://github.com/dedsyn4ps3/nix-incognito-test";
+    homepage = "https://github.com/dedsyn4ps3/nix-incognito";
     maintainers = with maintainers; [ dedsyn4ps3 ];
     platforms = platforms.unix;
     license = licenses.gpl3Plus;
