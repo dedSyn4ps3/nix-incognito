@@ -16,7 +16,7 @@ rustPlatform.buildRustPackage {
     ref = "main";
   };
 
-  cargoSha256 = "sha256-dgW2toCpqrJYYEaN5cwGhzXPky3jL+1vRsYiV7u6rLc=";
+  cargoSha256 = "sha256-S9bhnxOqklCFMktwEk70r7bRm/o5nG3DP7drCsXZz8E=";
 
   preInstall = ''
     mkdir -p $out/share/themes
