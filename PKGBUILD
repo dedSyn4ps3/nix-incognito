@@ -5,7 +5,7 @@
 #######################################################
 pkgname=nix-incognito
 _pkgname=nix-incognito
-pkgver=0.2.1
+pkgver=0.2.2
 pkgrel=1
 pkgdesc="A command line utility for changing the appearance of your system to look like Windows"
 arch=('x86_64')

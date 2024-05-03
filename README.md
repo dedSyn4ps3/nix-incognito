@@ -69,6 +69,15 @@ nix-build
 
 <br>
 
+> **NOTE:**
+>
+> Be aware that the **`cargoSha256`** hash may be different between commits!
+>
+> If you receive a build error when using **`nix build`**, simply replace the hash with the
+> `got:` value that is returned by the hash mismatch error, then re-build.
+
+<br>
+
 **While the tool can be built and run on its own from the `result` directory created by running either of the above `nix*` commands, the best way to incorporate the utility into your system is to import it into your `configuration.nix`.** 
 
 Once imported, a mere `nixos-rebuild switch` is all it takes to make it available from your system's `$PATH`.
@@ -173,7 +182,7 @@ This tool is still in its infancy, and while I plan to continue adding more feat
 <br>
 
 ## 📜 License
-> Copyright (C) 2024  Ed Rutherford <dedsyn4ps3>
+> Copyright (C) 2024  Ed Rutherford (dedsyn4ps3)
 >
 > This program is free software: you can redistribute it and/or modify
 > it under the terms of the GNU General Public License as published by

@@ -64,10 +64,10 @@ others to see...
 
 const AFTER_HELP: &'static str = color_print::cstr!(
     r#"<bold><blue>Examples:</blue></bold>
-<dim>$</dim> <bold><green>nix-incognito</green> <yellow>--silent --config</yellow> "path/to/use"</bold>             <dim># Enable with no output and custom config path</dim>
-<dim>$</dim> <bold><green>nix-incognito</green> <yellow>-s -w</yellow> /path/to/wallpaper.jpg</bold>                <dim># Enable with no output using custom wallpaper</dim>
-<dim>$</dim> <bold><green>nix-incognito</green> <yellow>-i</yellow> "Icon Pack" <yellow>-t</yellow> "Theme"</bold>  <dim># Enable using different theme and icons</dim>
-        "#
+  <dim>$</dim> <bold><green>nix-incognito</green> <yellow>--silent --config</yellow> "path/to/use"</bold>        <dim># Enable with no output and custom config path</dim>
+  <dim>$</dim> <bold><green>nix-incognito</green> <yellow>-s -w</yellow> /path/to/wallpaper.jpg</bold>           <dim># Enable with no output using custom wallpaper</dim>
+  <dim>$</dim> <bold><green>nix-incognito</green> <yellow>-i</yellow> "Icon Pack" <yellow>-t</yellow> "Theme"</bold>              <dim># Enable using different theme and icons</dim>
+"#
 );
 
 #[derive(Parser, Debug)]
