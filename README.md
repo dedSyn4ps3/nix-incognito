@@ -99,7 +99,16 @@ Once imported, a mere `nixos-rebuild switch` is all it takes to make it availabl
     ├── incognito.nix
 ```
 
-**To install the utility and make it available to your `$PATH`, all that's left to do is add it to your module imports inside of `configuration.nix`:**
+<br>
+
+**To install the utility and make it available to your `$PATH`, all that's left to do is add it to your module imports inside of `configuration.nix`!**
+
+> **IMPORTANT:**
+>
+> Be sure to include the `pathsToLink` declaration as well in your configuration! This allows the tool to access the filepaths of the background
+> wallpapers, icons, and theme that get installed during the building of the `nix-incognito` package...
+
+<br>
 
 ```nix
 ...
@@ -115,6 +124,19 @@ Once imported, a mere `nixos-rebuild switch` is all it takes to make it availabl
      vim
      git
      (import ./modules/incognito.nix)
+  ];
+
+
+  #######################################################################
+  #         The path link declaration below is VERY IMPORTANT!          #
+  #    Make sure to include it in your config in order for the newly    #
+  #    installed theme and icons to be made available to the tool...    #
+  #######################################################################
+
+  environment.pathsToLink = [
+    "/share/backgrounds"
+    "/share/icons"
+    "/share/themes"
   ];
 
 ...
